@@ -63,10 +63,10 @@ struct _gpio {
 } xshut[NUM_TOFS] = {
 	{TOF_0_XSHUT_GPIO_Port, TOF_0_XSHUT_Pin},
 	{TOF_1_XSHUT_GPIO_Port, TOF_1_XSHUT_Pin},
-	//{TOF_2_XSHUT_GPIO_Port, TOF_2_XSHUT_Pin},
-	//{TOF_3_XSHUT_GPIO_Port, TOF_3_XSHUT_Pin},
-	//{TOF_4_XSHUT_GPIO_Port, TOF_4_XSHUT_Pin},
-	//{TOF_5_XSHUT_GPIO_Port, TOF_5_XSHUT_Pin},
+	{TOF_2_XSHUT_GPIO_Port, TOF_2_XSHUT_Pin},
+	{TOF_3_XSHUT_GPIO_Port, TOF_3_XSHUT_Pin},
+	{TOF_4_XSHUT_GPIO_Port, TOF_4_XSHUT_Pin},
+	{TOF_5_XSHUT_GPIO_Port, TOF_5_XSHUT_Pin},
 };
 
 int status;

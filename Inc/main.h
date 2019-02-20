@@ -57,6 +57,14 @@
 #define TOF_0_XSHUT_GPIO_Port GPIOA
 #define TOF_1_XSHUT_Pin GPIO_PIN_10
 #define TOF_1_XSHUT_GPIO_Port GPIOB
+#define TOF_2_XSHUT_Pin GPIO_PIN_4
+#define TOF_2_XSHUT_GPIO_Port GPIOB
+#define TOF_3_XSHUT_Pin GPIO_PIN_5
+#define TOF_3_XSHUT_GPIO_Port GPIOB
+#define TOF_4_XSHUT_Pin GPIO_PIN_3
+#define TOF_4_XSHUT_GPIO_Port GPIOB
+#define TOF_5_XSHUT_Pin GPIO_PIN_10
+#define TOF_5_XSHUT_GPIO_Port GPIOA
 /* LED 2 */
 #define LD2_Pin GPIO_PIN_5
 #define LD2_GPIO_Port GPIOA
@@ -68,7 +76,7 @@
 #define SWO_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-#define NUM_TOFS (2)
+#define NUM_TOFS (6)
 
 /* USER CODE END Private defines */
 
