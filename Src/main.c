@@ -43,6 +43,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 I2C_HandleTypeDef hi2c1;
+UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
 /** @brief struct of all TOF sensors and their states */
@@ -80,6 +81,7 @@ volatile int IntCount;
 void SystemClock_Config(void);
 void Error_Handler(void);
 static void MX_GPIO_Init(void);
+static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 void AutonomousLowPowerRangingTest(void); /* see Autonomous ranging example implementation in USER CODE BEGIN 4 section */
@@ -234,6 +236,9 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
 
+	MX_USART1_UART_Init();
+	
+	// this is for ST link virtual COM
   MX_USART2_UART_Init();
 
 	MX_I2C1_Init();
@@ -456,6 +461,24 @@ static void MX_I2C1_Init(void)
 
 }
 #endif
+/* USART1 init function */
+static void MX_USART1_UART_Init(void)
+{
+
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+}
+
 /* USART2 init function */
 static void MX_USART2_UART_Init(void)
 {
