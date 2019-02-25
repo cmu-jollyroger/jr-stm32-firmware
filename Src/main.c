@@ -36,8 +36,11 @@
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
+#include "i2c_shared.h"
 #include "vl53l1_api.h"
 #include "X-NUCLEO-53L1A1.h"
+
+#include "MeEncoderMotor.h"
 /* USER CODE END Includes */
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
@@ -84,7 +87,11 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
+
+// Test functions
+void DCMotorTest(void);
 void AutonomousLowPowerRangingTest(void); /* see Autonomous ranging example implementation in USER CODE BEGIN 4 section */
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -242,6 +249,9 @@ int main(void)
   MX_USART2_UART_Init();
 
 	MX_I2C1_Init();
+	__HAL_RCC_I2C1_FORCE_RESET();
+	HAL_Delay(2);
+	__HAL_RCC_I2C1_RELEASE_RESET();
 
   XNUCLEO53L1A1_Init();
 	
@@ -250,9 +260,16 @@ int main(void)
 	
 	VL53L1_TOF_Init();
 	
+	MeEncoderDriver_Config();
+	
+	MeEncoderDriver_Init();
+	
 	/* USER CODE END 1 */
   
 	/* USER CODE BEGIN 2 */
+	
+	printf("starting DC motor test...\r\n");
+	DCMotorTest();
 
   printf("[info] Starting VL53L1X TOF Readings...\r\n");
 	
@@ -546,7 +563,16 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-/* Autonomous ranging loop*/
+/* DC Motor test */
+void DCMotorTest(void) {
+	while (1) {
+		runSpeed(-150, 0);
+		runSpeed(150, 1);
+		HAL_Delay(1000);
+	}
+}
+
+/* TOF Autonomous ranging loop*/
 void AutonomousLowPowerRangingTest(void)
 {
   static VL53L1_RangingMeasurementData_t RangingData;

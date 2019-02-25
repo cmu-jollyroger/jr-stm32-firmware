@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "MeEncoderMotor.h"
+#include "i2c_shared.h"
+#include "stm32xxx_hal.h"
+
 /**
  * \par Copyright (C), 2012-2016, MakeBlock
  * \class   MeEncoderMotor
@@ -154,7 +158,7 @@ uint32_t MeHost_Pack(uint8_t * buf,
  * \param[in]
  *   slot - SLOT1 or SLOT2
  */
-void MeEncoderMotorAddrSlot(uint8_t addr,uint8_t slot, int idx)
+void MeEncoderMotorAddrSlot(uint8_t addr, uint8_t slot, int idx)
 {
   MeEncoders[idx]._slot = (uint8_t) (slot - 1);
   MeEncoders[idx]._slaveAddress = addr;
@@ -377,12 +381,12 @@ bool runSpeed(float speed, int idx)
   uint8_t w[14] = {0};
   uint8_t r[10] = {0};
 
-  uint8_t data[6] = {0};
-  data[0] = MeEncoders[idx]._slot;
-  data[1] = ENCODER_MOTOR_RUN_STOP;
-  *((float *)(data + 2)) = speed;
+  uint8_t data[12] = {0}; // 6, extra space for stack padding
+  data[0 + 6] = MeEncoders[idx]._slot;
+  data[1 + 6] = ENCODER_MOTOR_RUN_STOP;
+  *((float *)(data + 2 + 6)) = speed;
 
-  MeHost_Pack(w, 14, 0x01, data, 6);
+  MeHost_Pack(w, 14, 0x01, data + 6, 6);
   request(w, r, 14, 10, idx);
   pushStr(encoderParser, r, 10);
   run(encoderParser);
@@ -527,16 +531,21 @@ float getCurrentPosition(int idx)
  */
 void request(uint8_t *writeData, uint8_t *readData, int wlen, int rlen, int idx)
 {
-  uint8_t rxByte;
-  uint8_t index = 0;
-  uint32_t timeout = 100;
+	printf("requesting data\r\n");
+  //uint8_t rxByte;
+  //uint8_t index = 0;
+  uint32_t timeout = 500;
 
   HAL_StatusTypeDef status = HAL_OK;
-  status = HAL_I2C_Slave_Transmit(I2C_HANDLE,  writeData, wlen, timeout);
+  status = HAL_I2C_Master_Transmit(&hi2c1, (MeEncoders[idx]._slaveAddress) << 1, writeData, wlen, timeout);
   if (status == HAL_OK) {
-    delayMicroseconds(2);
-    HAL_I2C_Slave_Receive(I2C_HANDLE, MeEncoders[idx]._slaveAddress, rlen, timeout);
+    HAL_Delay(2);
+		//HAL_I2C_Master_Receive(Dev->I2cHandle, Dev->I2cDevAddr|1, pdata, count, i2c_time_out);
+    status = HAL_I2C_Master_Receive(&hi2c1, ((MeEncoders[idx]._slaveAddress) << 1) | 1, readData, rlen, timeout);
   }
+	if (status == HAL_OK) {
+		return;
+	}
 
 //  Wire.beginTransmission(MeEncoders[idx]._slaveAddress); // transmit to device
 
@@ -556,8 +565,17 @@ void request(uint8_t *writeData, uint8_t *readData, int wlen, int rlen, int idx)
 //  }
 }
 
+void MeEncoderDriver_Config() {
+	return;
+}
 
-int main() {
-  printf("Hello, World!\n");
-  return 0;
+void MeEncoderDriver_Init() {
+	// Initialize two motors
+	MeEncoderMotorSlot(SLOT1, 0);
+	MeEncoderMotorSlot(SLOT2, 1);
+	
+	MeHostParserInit(encoderParser);
+	
+	begin(0);
+	begin(1);
 }

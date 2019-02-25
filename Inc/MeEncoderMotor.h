@@ -52,6 +52,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define SLOT1 (1)
+#define SLOT2 (2)
+
 /**
  * Alternate Constructor which can call your own function to map the Encoder Motor to arduino port,
  * you can set any slot for the Encoder Motor device.
@@ -251,6 +254,8 @@
  */
   void request(uint8_t *writeData, uint8_t *readData, int wlen, int rlen, int idx);
 
-
+	void MeEncoderDriver_Config(void);
+	
+	void MeEncoderDriver_Init(void);
 
 #endif

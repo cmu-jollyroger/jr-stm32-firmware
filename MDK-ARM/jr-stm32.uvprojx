@@ -585,6 +585,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Drivers/Locomotion</GroupName>
+          <Files>
+            <File>
+              <FileName>MeEncoderMotor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\Locomotion\MeEncoderMotor.c</FilePath>
+            </File>
+            <File>
+              <FileName>MeHostParser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\Locomotion\MeHostParser.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>

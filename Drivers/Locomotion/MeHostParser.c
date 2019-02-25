@@ -42,8 +42,8 @@
  */
 
 #include <stddef.h>
-#include <memory.h>
 #include <stdlib.h>
+#include <string.h>
 #include "MeHostParser.h"
 
 #define HEAD    0xA5
@@ -127,6 +127,7 @@ uint8_t pushStr(MeParser *parser, uint8_t * str, uint32_t length)
       pushByte(parser, str[i]);
     }
   }
+	return 0; // HACKS
 }
 
 /**
