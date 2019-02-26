@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
-project(MeEncoder C)
+project(Locomotion)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(MeEncoder MeHostParser.c MeHostParser.h MeEncoderMotor.c MeEncoderMotor.h )
+add_executable(Locomotion MeEncoderNew.c MeEncoderNew.h)
