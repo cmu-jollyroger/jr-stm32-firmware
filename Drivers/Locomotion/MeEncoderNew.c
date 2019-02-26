@@ -66,8 +66,7 @@
  * @example EncoderMotorTestRunTurns.ino
  */
 
-#include <memory.h>
-#include <printf.h>
+#include <string.h>
 #include "MeEncoderNew.h"
 
 #include "i2c_shared.h"
@@ -306,7 +305,7 @@ void runSpeed(float speed,float lock_state, int idx)
  */
 void runTurns(long turns, float speed,float lock_state, int idx)
 {
-  return move(turns * 360, speed,lock_state, idx);
+  move(turns * 360, speed,lock_state, idx);
 }
 
 /**
@@ -820,11 +819,11 @@ void runSpeedAndTime(float speed, float time, float lock_state, int idx)
 {
   if(MeEncoders[idx]._lastTime == 0)
   {
-    MeEncoders[idx]._lastTime = millis();
+    MeEncoders[idx]._lastTime = HAL_GetTick();
     runSpeed(speed,lock_state, idx);
   }
 
-  if(millis() - MeEncoders[idx]._lastTime > (1000 * time))
+  if(HAL_GetTick() - MeEncoders[idx]._lastTime > (1000 * time))
   {
     MeEncoders[idx]._lastTime = 0;
     runSpeed(0,lock_state, idx);
@@ -921,4 +920,13 @@ void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout) {
   if (status != HAL_OK) {
     printf("I2C master receive error.\n");
   }
+}
+
+void MeEncoderNew_Init() {
+	MeEncoderNewSlot(SLOT1, 0);
+	MeEncoderNewSlot(SLOT2, 1);
+	
+	reset(0);
+	reset(1);
+
 }

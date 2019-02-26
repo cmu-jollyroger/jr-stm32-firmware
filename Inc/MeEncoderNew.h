@@ -69,6 +69,9 @@
 
 #define LEONARDO_PORT1
 
+#define SLOT1 (1)
+#define SLOT2 (2)
+
 #if defined(UNO_PORT1) //10:PB3 11:PB2
 #define SDA_PORT PORTB
 #define SDA_PIN 3
@@ -104,6 +107,8 @@
  * \par Description
  * Declaration of Class MeEncoderNew
  */
+
+void MeEncoderNew_Init(void);
 
 /**
  * Alternate Constructor which can call your own function to map the Encoder Motor New to arduino port,

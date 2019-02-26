@@ -40,7 +40,7 @@
 #include "vl53l1_api.h"
 #include "X-NUCLEO-53L1A1.h"
 
-#include "MeEncoderMotor.h"
+#include "MeEncoderNew.h"
 /* USER CODE END Includes */
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
@@ -260,9 +260,7 @@ int main(void)
 	
 	VL53L1_TOF_Init();
 	
-	MeEncoderDriver_Config();
-	
-	MeEncoderDriver_Init();
+	MeEncoderNew_Init();
 	
 	/* USER CODE END 1 */
   
@@ -566,9 +564,11 @@ static void MX_GPIO_Init(void)
 /* DC Motor test */
 void DCMotorTest(void) {
 	while (1) {
-		runSpeed(-150, 0);
-		runSpeed(150, 1);
-		HAL_Delay(1000);
+		runTurns(2, 150, 1, 0);
+		runTurns(2, 150, 1, 1);
+		//runSpeed(150, 1, 0);
+		//runSpeed(150, 1, 1);
+		HAL_Delay(4000);
 	}
 }
 
