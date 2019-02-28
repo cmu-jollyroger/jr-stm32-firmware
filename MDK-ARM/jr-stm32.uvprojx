@@ -592,6 +592,11 @@
               <FileType>1</FileType>
               <FilePath>..\Drivers\Locomotion\MeEncoderNew.c</FilePath>
             </File>
+            <File>
+              <FileName>chassis_ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\chassis_ctrl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

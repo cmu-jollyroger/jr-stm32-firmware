@@ -909,7 +909,7 @@ void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout) {
   HAL_StatusTypeDef status = HAL_OK;
   status = HAL_I2C_Master_Transmit(&hi2c1, (MeEncoders[idx].address) << 1, writeData, wlen, timeout);
   if (status != HAL_OK) {
-    printf("I2C master transmit error.\n");
+    printf("[error] MeEncoderDriver I2C_Master_Transmit(%d)\r\n", idx);
   }
 
 }
@@ -918,15 +918,23 @@ void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout) {
   HAL_StatusTypeDef status = HAL_OK;
   status = HAL_I2C_Master_Receive(&hi2c1, ((MeEncoders[idx].address) << 1) | 1, readData, rlen, timeout);
   if (status != HAL_OK) {
-    printf("I2C master receive error.\n");
+    printf("[error] MeEncoderDriver I2C_Master_Receive(%d)\r\n", idx);
   }
 }
 
 void MeEncoderNew_Init() {
-	MeEncoderNewSlot(SLOT1, 0);
-	MeEncoderNewSlot(SLOT2, 1);
+	MeEncoderNewAddrSlot(0x09, SLOT1, 0);
+	MeEncoderNewAddrSlot(0x09, SLOT2, 1);
+	MeEncoderNewAddrSlot(0x0A, SLOT1, 2);
+	MeEncoderNewAddrSlot(0x0A, SLOT2, 3);
 	
 	reset(0);
+	HAL_Delay(100); // must have a delay to prevent BUS_BUSY, bug from MakeBlock
 	reset(1);
+	HAL_Delay(100); // must have a delay to prevent BUS_BUSY, bug from MakeBlock
+	reset(2);
+	HAL_Delay(100); // must have a delay to prevent BUS_BUSY, bug from MakeBlock
+	reset(3);
 
+	printf("[OK] MeEncoderNew_Init()\r\n");
 }

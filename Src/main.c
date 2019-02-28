@@ -159,7 +159,7 @@ void VL53L1_TOF_Init() {
 		}
 		
 		err = VL53L1_SetDeviceAddress(Dev, (0x29 + i + 1) << 1);
-		Dev->I2cDevAddr = (0x29 + i + 1) << 1; //change address even in case of error to reduce miss-talk
+		Dev->I2cDevAddr = (0x29 + i + 1) << 1; //change address even in case of error to reduce cross-talk
 		if (err != VL53L1_ERROR_NONE) {
 			printf("[error] VL53L1_SetDeviceAddress(%d) failed\r\n", i);
 			continue;
@@ -201,7 +201,7 @@ void VL53L1_TOF_Init() {
 		
 		err = VL53L1_StartMeasurement(Dev);
 		if (err != VL53L1_ERROR_NONE) {
-			printf("[error] VL53L1_StartMeasurement(%d) failed\r\n", i);
+			printf("[error] VL53L1_StartMeasurement(%d) failed : %d\r\n", i, err);
 			continue;
 		} else {
 			printf("[OK] VL53L1_StartMeasurement(%d)\r\n", i);
@@ -258,7 +258,11 @@ int main(void)
 	/* Initialize all TOF sensors */
 	VL53L1_TOF_Config();
 	
+	HAL_Delay(300);
+	
 	VL53L1_TOF_Init();
+	
+	HAL_Delay(300);
 	
 	MeEncoderNew_Init();
 	
@@ -561,14 +565,52 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+void chassis_fwd() {
+	move(100, 70, 0, 0);
+	move(100, 70, 0, 1);
+	move(-100, 70, 0, 2);
+	move(-100, 70, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_bkw() {
+	move(-100, 70, 0, 0);
+	move(-100, 70, 0, 1);
+	move(100, 70, 0, 2);
+	move(100, 70, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_left() {
+	move(100, 70, 0, 0);
+	move(-100, 70, 0, 1);
+	move(-100, 70, 0, 2);
+	move(100, 70, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_right() {
+	move(-100, 70, 0, 0);
+	move(100, 70, 0, 1);
+	move(100, 70, 0, 2);
+	move(-100, 70, 0, 3);
+	HAL_Delay(3000);
+}
+
+
 /* DC Motor test */
 void DCMotorTest(void) {
 	while (1) {
-		runTurns(2, 150, 1, 0);
-		runTurns(2, 150, 1, 1);
+		chassis_fwd();
+		chassis_left();
+		chassis_right();
+		chassis_bkw();
+		
+		//runTurns(2, 150, 1, 0);
+		//runTurns(2, 150, 1, 1);
 		//runSpeed(150, 1, 0);
 		//runSpeed(150, 1, 1);
-		HAL_Delay(4000);
+		//HAL_Delay(3000);
 	}
 }
 
