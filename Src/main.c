@@ -623,7 +623,13 @@ void DCMotorTest(void) {
 	getSpeedPID(&sP, &sI, &sD, 0);
 	getPosPID(&pP, &pI, &pD, 0);
 	
-	printf("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n", sP, sI, sD, pP, pI, pD);
+//	printf("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n", sP, sI, sD, pP, pI, pD);
+
+  printf("speed: %.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n",
+         getCurrentSpeed(0),
+         getCurrentSpeed(1),
+         getCurrentSpeed(2),
+         getCurrentSpeed(3));
 	
 //	setSpeedPID(.05, 0, .1, 0);
 //	setSpeedPID(.05, 0, .1, 1);
