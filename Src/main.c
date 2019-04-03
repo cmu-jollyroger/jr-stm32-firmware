@@ -565,46 +565,92 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
+float speed_run = 70.;
+
 void chassis_fwd() {
-	move(100, 70, 0, 0);
-	move(100, 70, 0, 1);
-	move(-100, 70, 0, 2);
-	move(-100, 70, 0, 3);
+	move(700, speed_run, 0, 0);
+	move(700, speed_run, 0, 1);
+	move(-700, speed_run, 0, 2);
+	move(-700, speed_run, 0, 3);
 	HAL_Delay(3000);
 }
 
 void chassis_bkw() {
-	move(-100, 70, 0, 0);
-	move(-100, 70, 0, 1);
-	move(100, 70, 0, 2);
-	move(100, 70, 0, 3);
+	move(-700, speed_run, 0, 0);
+	move(-700, speed_run, 0, 1);
+	move(700, speed_run, 0, 2);
+	move(700, speed_run, 0, 3);
 	HAL_Delay(3000);
 }
 
 void chassis_left() {
-	move(100, 70, 0, 0);
-	move(-100, 70, 0, 1);
-	move(-100, 70, 0, 2);
-	move(100, 70, 0, 3);
+	move(700, speed_run, 0, 0);
+	move(-700, speed_run, 0, 1);
+	move(-700, speed_run, 0, 2);
+	move(700, speed_run, 0, 3);
 	HAL_Delay(3000);
 }
 
 void chassis_right() {
-	move(-100, 70, 0, 0);
-	move(100, 70, 0, 1);
-	move(100, 70, 0, 2);
-	move(-100, 70, 0, 3);
+	move(-700, speed_run, 0, 0);
+	move(700, speed_run, 0, 1);
+	move(700, speed_run, 0, 2);
+	move(-700, speed_run, 0, 3);
 	HAL_Delay(3000);
 }
 
 
 /* DC Motor test */
 void DCMotorTest(void) {
+	float sP = .05;
+	float sI = 0.01;
+	float sD = 0.1;
+	
+	float pP = 0.1;
+	float pI = 0.;
+	float pD = 0.;
+	
+	setSpeedPID(sP, sI, sD, 0);
+	setSpeedPID(sP, sI, sD, 1);
+	setSpeedPID(sP, sI, sD, 2);
+	setSpeedPID(sP, sI, sD, 3);
+	
+	setPosPID(pP, pI, pD, 0);
+	setPosPID(pP, pI, pD, 1);
+	setPosPID(pP, pI, pD, 2);
+	setPosPID(pP, pI, pD, 3);
+	
+	getSpeedPID(&sP, &sI, &sD, 0);
+	getPosPID(&pP, &pI, &pD, 0);
+	
+	printf("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n", sP, sI, sD, pP, pI, pD);
+	
+//	setSpeedPID(.05, 0, .1, 0);
+//	setSpeedPID(.05, 0, .1, 1);
+//	setSpeedPID(.05, 0, .1, 2);
+//	setSpeedPID(.05, 0, .1, 3);
+//	
+//	setPosPID(.1, .1, .3, 0);
+//	setPosPID(.1, .1, .3, 1);
+//	setPosPID(.1, .1, .3, 2);
+//	setPosPID(.1, .1, .3, 3);
+
+//	while (1) {
+//		runSpeed(70, 1, 0);
+//		runSpeed(70, 1, 1);
+//		runSpeed(70, 1, 2);
+//		runSpeed(70, 1, 3);
+//	}
+	
 	while (1) {
 		chassis_fwd();
+		printf("fwd\r\n");
 		chassis_left();
+		printf("left\r\n");
 		chassis_right();
+		printf("right\r\n");
 		chassis_bkw();
+		printf("bkw\r\n");
 		
 		//runTurns(2, 150, 1, 0);
 		//runTurns(2, 150, 1, 1);
