@@ -36,8 +36,11 @@
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
+#include "i2c_shared.h"
 #include "vl53l1_api.h"
 #include "X-NUCLEO-53L1A1.h"
+
+#include "MeEncoderNew.h"
 /* USER CODE END Includes */
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
@@ -84,7 +87,11 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
+
+// Test functions
+void DCMotorTest(void);
 void AutonomousLowPowerRangingTest(void); /* see Autonomous ranging example implementation in USER CODE BEGIN 4 section */
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -152,7 +159,7 @@ void VL53L1_TOF_Init() {
 		}
 		
 		err = VL53L1_SetDeviceAddress(Dev, (0x29 + i + 1) << 1);
-		Dev->I2cDevAddr = (0x29 + i + 1) << 1; //change address even in case of error to reduce miss-talk
+		Dev->I2cDevAddr = (0x29 + i + 1) << 1; //change address even in case of error to reduce cross-talk
 		if (err != VL53L1_ERROR_NONE) {
 			printf("[error] VL53L1_SetDeviceAddress(%d) failed\r\n", i);
 			continue;
@@ -194,7 +201,7 @@ void VL53L1_TOF_Init() {
 		
 		err = VL53L1_StartMeasurement(Dev);
 		if (err != VL53L1_ERROR_NONE) {
-			printf("[error] VL53L1_StartMeasurement(%d) failed\r\n", i);
+			printf("[error] VL53L1_StartMeasurement(%d) failed : %d\r\n", i, err);
 			continue;
 		} else {
 			printf("[OK] VL53L1_StartMeasurement(%d)\r\n", i);
@@ -242,17 +249,29 @@ int main(void)
   MX_USART2_UART_Init();
 
 	MX_I2C1_Init();
+	__HAL_RCC_I2C1_FORCE_RESET();
+	HAL_Delay(2);
+	__HAL_RCC_I2C1_RELEASE_RESET();
 
   XNUCLEO53L1A1_Init();
 	
 	/* Initialize all TOF sensors */
 	VL53L1_TOF_Config();
 	
+	HAL_Delay(300);
+	
 	VL53L1_TOF_Init();
+	
+	HAL_Delay(300);
+	
+	MeEncoderNew_Init();
 	
 	/* USER CODE END 1 */
   
 	/* USER CODE BEGIN 2 */
+	
+	printf("starting DC motor test...\r\n");
+	DCMotorTest();
 
   printf("[info] Starting VL53L1X TOF Readings...\r\n");
 	
@@ -546,7 +565,102 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-/* Autonomous ranging loop*/
+float speed_run = 70.;
+
+void chassis_fwd() {
+	move(700, speed_run, 0, 0);
+	move(700, speed_run, 0, 1);
+	move(-700, speed_run, 0, 2);
+	move(-700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_bkw() {
+	move(-700, speed_run, 0, 0);
+	move(-700, speed_run, 0, 1);
+	move(700, speed_run, 0, 2);
+	move(700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_left() {
+	move(700, speed_run, 0, 0);
+	move(-700, speed_run, 0, 1);
+	move(-700, speed_run, 0, 2);
+	move(700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_right() {
+	move(-700, speed_run, 0, 0);
+	move(700, speed_run, 0, 1);
+	move(700, speed_run, 0, 2);
+	move(-700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+
+/* DC Motor test */
+void DCMotorTest(void) {
+	float sP = .05;
+	float sI = 0.01;
+	float sD = 0.1;
+	
+	float pP = 0.1;
+	float pI = 0.;
+	float pD = 0.;
+	
+	setSpeedPID(sP, sI, sD, 0);
+	setSpeedPID(sP, sI, sD, 1);
+	setSpeedPID(sP, sI, sD, 2);
+	setSpeedPID(sP, sI, sD, 3);
+	
+	setPosPID(pP, pI, pD, 0);
+	setPosPID(pP, pI, pD, 1);
+	setPosPID(pP, pI, pD, 2);
+	setPosPID(pP, pI, pD, 3);
+	
+	getSpeedPID(&sP, &sI, &sD, 0);
+	getPosPID(&pP, &pI, &pD, 0);
+	
+	printf("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n", sP, sI, sD, pP, pI, pD);
+	
+//	setSpeedPID(.05, 0, .1, 0);
+//	setSpeedPID(.05, 0, .1, 1);
+//	setSpeedPID(.05, 0, .1, 2);
+//	setSpeedPID(.05, 0, .1, 3);
+//	
+//	setPosPID(.1, .1, .3, 0);
+//	setPosPID(.1, .1, .3, 1);
+//	setPosPID(.1, .1, .3, 2);
+//	setPosPID(.1, .1, .3, 3);
+
+//	while (1) {
+//		runSpeed(70, 1, 0);
+//		runSpeed(70, 1, 1);
+//		runSpeed(70, 1, 2);
+//		runSpeed(70, 1, 3);
+//	}
+	
+	while (1) {
+		chassis_fwd();
+		printf("fwd\r\n");
+		chassis_left();
+		printf("left\r\n");
+		chassis_right();
+		printf("right\r\n");
+		chassis_bkw();
+		printf("bkw\r\n");
+		
+		//runTurns(2, 150, 1, 0);
+		//runTurns(2, 150, 1, 1);
+		//runSpeed(150, 1, 0);
+		//runSpeed(150, 1, 1);
+		//HAL_Delay(3000);
+	}
+}
+
+/* TOF Autonomous ranging loop*/
 void AutonomousLowPowerRangingTest(void)
 {
   static VL53L1_RangingMeasurementData_t RangingData;
