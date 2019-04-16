@@ -115,7 +115,7 @@ MeEncoder MeEncoders[NumOfEncoder];
 
 void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout);
 void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout);
-void request_mem(uint8_t request_code, uint8_t *readData, uint16_t rlen, int idx);
+void request_info(uint8_t *writeBuf, int wlen, uint8_t *readBuf, int rlen, int idx, uint32_t timeout);
 /**
  * Alternate Constructor which can call your own function to map the Encoder Motor New to arduino port,
  * you can set any slot for the Encoder Motor New device.
@@ -463,7 +463,7 @@ long getCurrentPosition( int idx)
   writeBuf[0] = MeEncoders[idx]._slot;
   writeBuf[1] = CMD_GET_POS;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
   long pos = *(long*)readBuf;
   return pos;
@@ -498,7 +498,7 @@ void getSpeedPID(float * p,float * i,float * d, int idx)
 	writeBuf[0] = MeEncoders[idx]._slot;
 	writeBuf[1] = CMD_GET_SPEED_PID;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
   float *PIDbuf;
   PIDbuf = (float *)readBuf;
@@ -536,7 +536,7 @@ void getPosPID(float * p,float * i,float * d, int idx)
 	writeBuf[0] = MeEncoders[idx]._slot;
 	writeBuf[1] = CMD_GET_POS_PID;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
   float *PIDbuf;
   PIDbuf = (float *)readBuf;
@@ -570,7 +570,7 @@ float getCurrentSpeed(int idx)
 	writeBuf[0] = MeEncoders[idx]._slot;
 	writeBuf[1] = CMD_GET_SPEED;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
   float speed = *(float*)readBuf;
   return speed;
@@ -621,7 +621,7 @@ float getRatio(int idx)
   writeBuf[0] = MeEncoders[idx]._slot;
   writeBuf[1] = CMD_GET_RATIO;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
   float ratio = *(float*)readBuf;
   return ratio;
@@ -675,7 +675,7 @@ int getPulse(int idx)
   writeBuf[0] = MeEncoders[idx]._slot;
   writeBuf[1] = CMD_GET_PULSE;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
   int pulse = *(int*)readBuf;
   return pulse;
@@ -784,9 +784,9 @@ bool isTarPosReached(int idx)
   writeBuf[0] = MeEncoders[idx]._slot;
   writeBuf[1] = CMD_GET_LOCK_STATE;
 
-  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, readBuf, rlen, idx, Timeout);
 
-  bool lock_state = *(bool*)buf;
+  bool lock_state = *(bool*)readBuf;
   return lock_state;
 }
 
@@ -813,12 +813,12 @@ void getFirmwareVersion(uint8_t *buffer, int idx)
   writeBuf[0] = MeEncoders[idx]._slot;
   writeBuf[1] = CMD_GET_FIRWARE_VERSION;
 
-  request(writeBuf, wlen, buffer, rlen, idx, Timeout);
+  request_info(writeBuf, wlen, buffer, rlen, idx, Timeout);
 }
 
-void request(uint8_t *writeBuf, int wlen, uint8_t *readBuf, int rlen, int idx, uint32_t timeout) {
-  I2C_write(writeBuf, wlen, idx, timeout);
-  I2C_read(readBuf, rlen, idx, timeout);
+void request_info(uint8_t *writeBuf, int wlen, uint8_t *readBuf, int rlen, int idx, uint32_t timeout) {
+  I2C_write(writeBuf, wlen, idx, Timeout);
+  I2C_read(readBuf, rlen, idx, Timeout);
 }
 
 void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout) {

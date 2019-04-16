@@ -225,6 +225,39 @@ void VL53L1_TOF_Init() {
 }
 
 /* USER CODE END 0 */
+float speed_run = 70.;
+
+void chassis_fwd() {
+	move(700, speed_run, 0, 0);
+	move(700, speed_run, 0, 1);
+	move(-700, speed_run, 0, 2);
+	move(-700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_bkw() {
+	move(-700, speed_run, 0, 0);
+	move(-700, speed_run, 0, 1);
+	move(700, speed_run, 0, 2);
+	move(700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_left() {
+	move(700, speed_run, 0, 0);
+	move(-700, speed_run, 0, 1);
+	move(-700, speed_run, 0, 2);
+	move(700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
+
+void chassis_right() {
+	move(-700, speed_run, 0, 0);
+	move(700, speed_run, 0, 1);
+	move(700, speed_run, 0, 2);
+	move(-700, speed_run, 0, 3);
+	HAL_Delay(3000);
+}
 
 int main(void)
 {
@@ -278,6 +311,16 @@ int main(void)
 	/* Sequential ranging loop */
 	static VL53L1_RangingMeasurementData_t RangingData;
 	while (1) {
+		
+		chassis_fwd();
+		printf("fwd\r\n");
+		chassis_left();
+		printf("left\r\n");
+		chassis_right();
+		printf("right\r\n");
+		chassis_bkw();
+		printf("bkw\r\n");
+		
 		for (ToFSensor = 0; ToFSensor < NUM_TOFS; ToFSensor++) {
 			Dev = &sensors[ToFSensor].dev;
 			
@@ -565,39 +608,39 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-float speed_run = 10.;
+//float speed_run = 10.;
 
-void chassis_fwd() {
-	move(700, speed_run, 0, 0);
-	move(700, speed_run, 0, 1);
-	move(-700, speed_run, 0, 2);
-	move(-700, speed_run, 0, 3);
-	HAL_Delay(3000);
-}
+//void chassis_fwd() {
+//	move(700, speed_run, 0, 0);
+//	move(700, speed_run, 0, 1);
+//	move(-700, speed_run, 0, 2);
+//	move(-700, speed_run, 0, 3);
+//	HAL_Delay(3000);
+//}
 
-void chassis_bkw() {
-	move(-700, speed_run, 0, 0);
-	move(-700, speed_run, 0, 1);
-	move(700, speed_run, 0, 2);
-	move(700, speed_run, 0, 3);
-	HAL_Delay(3000);
-}
+//void chassis_bkw() {
+//	move(-700, speed_run, 0, 0);
+//	move(-700, speed_run, 0, 1);
+//	move(700, speed_run, 0, 2);
+//	move(700, speed_run, 0, 3);
+//	HAL_Delay(3000);
+//}
 
-void chassis_left() {
-	move(700, speed_run, 0, 0);
-	move(-700, speed_run, 0, 1);
-	move(-700, speed_run, 0, 2);
-	move(700, speed_run, 0, 3);
-	HAL_Delay(3000);
-}
+//void chassis_left() {
+//	move(700, speed_run, 0, 0);
+//	move(-700, speed_run, 0, 1);
+//	move(-700, speed_run, 0, 2);
+//	move(700, speed_run, 0, 3);
+//	HAL_Delay(3000);
+//}
 
-void chassis_right() {
-	move(-700, speed_run, 0, 0);
-	move(700, speed_run, 0, 1);
-	move(700, speed_run, 0, 2);
-	move(-700, speed_run, 0, 3);
-	HAL_Delay(3000);
-}
+//void chassis_right() {
+//	move(-700, speed_run, 0, 0);
+//	move(700, speed_run, 0, 1);
+//	move(700, speed_run, 0, 2);
+//	move(-700, speed_run, 0, 3);
+//	HAL_Delay(3000);
+//}
 
 
 /* DC Motor test */
@@ -609,7 +652,7 @@ void DCMotorTest(void) {
 	float pP = 0.0;
 	float pI = 0.0;
 	float pD = 0.0;
-//	
+
 	setSpeedPID(sP, sI, sD, 0);
 	setSpeedPID(sP, sI, sD, 1);
 	setSpeedPID(sP, sI, sD, 2);
@@ -625,51 +668,17 @@ void DCMotorTest(void) {
 	
 	printf("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f\n", sP, sI, sD, pP, pI, pD);
 	
-//	setSpeedPID(.05, 0, .1, 0);
-//	setSpeedPID(.05, 0, .1, 1);
-//	setSpeedPID(.05, 0, .1, 2);
-//	setSpeedPID(.05, 0, .1, 3);
-//	
-//	setPosPID(.1, .1, .3, 0);
-//	setPosPID(.1, .1, .3, 1);
-//	setPosPID(.1, .1, .3, 2);
-//	setPosPID(.1, .1, .3, 3);
-
-	while (1) {
-//		if (speed_run < 110.) {
-//			speed_run = speed_run + 5.0;
-//		}
-//		if (speed_run > 110.) {
-//			speed_run = 50.0;
-//		}
-		speed_run = 80.;
-		runSpeed(speed_run, 1, 0);
-		runSpeed(speed_run, 1, 1);
-		runSpeed(speed_run, 1, 2);
-		runSpeed(speed_run, 1, 3);
-		
-		printf("speed: set speed: %.2f -> %.2f ||| ",
-		speed_run, getCurrentSpeed(2));
-		HAL_Delay(100);
-	}
-//	
-	while (1) {
-		
-		chassis_fwd();
-		printf("fwd\r\n");
-		chassis_left();
-		printf("left\r\n");
-		chassis_right();
-		printf("right\r\n");
-		chassis_bkw();
-		printf("bkw\r\n");
-		
-		//runTurns(2, 150, 1, 0);
-		//runTurns(2, 150, 1, 1);
-		//runSpeed(150, 1, 0);
-		//runSpeed(150, 1, 1);
-		//HAL_Delay(3000);
-	}
+//	while (1) {
+//		
+//		chassis_fwd();
+//		printf("fwd\r\n");
+//		chassis_left();
+//		printf("left\r\n");
+//		chassis_right();
+//		printf("right\r\n");
+//		chassis_bkw();
+//		printf("bkw\r\n");
+//	}
 }
 
 /* TOF Autonomous ranging loop*/
