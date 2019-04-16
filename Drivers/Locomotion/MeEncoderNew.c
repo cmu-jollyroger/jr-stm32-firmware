@@ -113,7 +113,6 @@ typedef struct meEncoder {
 #define NumOfEncoder 4
 MeEncoder MeEncoders[NumOfEncoder];
 
-
 void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout);
 void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout);
 void request_mem(uint8_t request_code, uint8_t *readData, uint16_t rlen, int idx);
@@ -220,7 +219,6 @@ void move(long angle, float speed, float lock_state, int idx)
   memcpy(MeEncoders[idx].cmdBuf + 6, &angle, 4);
   memcpy(MeEncoders[idx].cmdBuf + 10,&speed,4);
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -249,7 +247,6 @@ void moveTo(long angle, float speed,float lock_state, int idx)
   memcpy(MeEncoders[idx].cmdBuf + 6, &angle, 4);
   memcpy(MeEncoders[idx].cmdBuf + 10,&speed,4);
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -270,19 +267,11 @@ void moveTo(long angle, float speed,float lock_state, int idx)
  */
 void runSpeed(float speed,float lock_state, int idx)
 {
-//  MeEncoders[idx].cmdBuf[0] = MeEncoders[idx]._slot;
-//  MeEncoders[idx].cmdBuf[1] = CMD_MOVE_SPD;
-//  memcpy(MeEncoders[idx].cmdBuf + 2, &lock_state, 4);
-//  memcpy(MeEncoders[idx].cmdBuf + 6, &speed, 4);
-//  sendCmd(idx);
-//  HAL_Delay(2);
-
   MeEncoders[idx].cmdBuf[0] = MeEncoders[idx]._slot;
   MeEncoders[idx].cmdBuf[1] = CMD_MOVE_SPD;
   memcpy(MeEncoders[idx].cmdBuf + 2, &lock_state, 4);
   memcpy(MeEncoders[idx].cmdBuf + 6, &speed, 4);
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -325,7 +314,6 @@ void reset(int idx)
   MeEncoders[idx].cmdBuf[0] = MeEncoders[idx]._slot;
   MeEncoders[idx].cmdBuf[1] = CMD_RESET;
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -404,7 +392,6 @@ void setMode(uint8_t mode, int idx)
   MeEncoders[idx].cmdBuf[1] = CMD_SET_MODE;
   MeEncoders[idx].cmdBuf[2] = mode;
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -427,7 +414,6 @@ void setPWM(int pwm, int idx)
   MeEncoders[idx].cmdBuf[1] = CMD_SET_PWM;
   memcpy(MeEncoders[idx].cmdBuf+2,&pwm,2);
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -450,7 +436,6 @@ void setCurrentPosition(long pulse_counter, int idx)
   MeEncoders[idx].cmdBuf[1] = CMD_SET_CUR_POS;
   memcpy(MeEncoders[idx].cmdBuf+2,&pulse_counter,4);
   sendCmd(idx);
-  HAL_Delay(2);
 }
 
 /**
@@ -469,23 +454,18 @@ void setCurrentPosition(long pulse_counter, int idx)
  */
 long getCurrentPosition( int idx)
 {
-  long pos;
-  uint8_t buf[8];
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_POS);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)4);
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
+  int wlen = 2;
+  int rlen = sizeof(long);
 
-  uint8_t request_code = CMD_GET_POS;
-  uint8_t rlen = 4;
-  request(&request_code, buf, rlen, idx);
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
 
-  pos = *(long*)buf;
+  writeBuf[0] = MeEncoders[idx]._slot;
+  writeBuf[1] = CMD_GET_POS;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
+  long pos = *(long*)readBuf;
   return pos;
 }
 
@@ -509,43 +489,19 @@ long getCurrentPosition( int idx)
  */
 void getSpeedPID(float * p,float * i,float * d, int idx)
 {
-//  uint8_t buf[8];
-  uint8_t buf[12];
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_SPEED_PID);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)12);
+  int wlen = 2;
+  int rlen = 3 * sizeof(float);
 
-//  uint8_t request_code = CMD_GET_SPEED_PID;
-//  uint8_t rlen = 12;
-//  request(&request_code, buf, rlen, idx);
-	
-	uint8_t sendBuf[8];
-	sendBuf[0] = MeEncoders[idx]._slot;
-	sendBuf[1] = CMD_GET_SPEED_PID;
-	I2C_write(sendBuf, 2, idx, Timeout);
-	I2C_read(buf, 12, idx, Timeout);
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
 
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-//  *p = *(float*)buf;
-//
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-//  *i = *(float*)buf;
-//
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-//  *d = *(float*)buf;
+	writeBuf[0] = MeEncoders[idx]._slot;
+	writeBuf[1] = CMD_GET_SPEED_PID;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
   float *PIDbuf;
-  PIDbuf = (float *)buf;
+  PIDbuf = (float *)readBuf;
   *p = PIDbuf[0];
   *i = PIDbuf[1];
   *d = PIDbuf[2];
@@ -571,44 +527,19 @@ void getSpeedPID(float * p,float * i,float * d, int idx)
  */
 void getPosPID(float * p,float * i,float * d, int idx)
 {
-//  uint8_t buf[8];
-  uint8_t buf[12];
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_POS_PID);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)12);
+  int wlen = 2;
+  int rlen = 3 * sizeof(float);
 
-//  uint8_t request_code = CMD_GET_POS_PID;
-//  uint8_t rlen = 12;
-//  request(&request_code, buf, rlen, idx);
-//	
-	uint8_t sendBuf[8];
-	sendBuf[0] = MeEncoders[idx]._slot;
-	sendBuf[1] = CMD_GET_POS_PID;
-	I2C_write(sendBuf, 2, idx, Timeout);
-	I2C_read(buf, 12, idx, Timeout);
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
 
-//
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-//  *p = *(float*)buf;
-//
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-//  *i = *(float*)buf;
-//
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-//  *d = *(float*)buf;
+	writeBuf[0] = MeEncoders[idx]._slot;
+	writeBuf[1] = CMD_GET_POS_PID;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
   float *PIDbuf;
-  PIDbuf = (float *)buf;
+  PIDbuf = (float *)readBuf;
   *p = PIDbuf[0];
   *i = PIDbuf[1];
   *d = PIDbuf[2];
@@ -630,32 +561,18 @@ void getPosPID(float * p,float * i,float * d, int idx)
  */
 float getCurrentSpeed(int idx)
 {
-  uint8_t buf[8];
-  float speed;
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_SPEED);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)4);
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
-	
-	
-	
-	uint8_t sendBuf[8];
-	sendBuf[0] = MeEncoders[idx]._slot;
-	sendBuf[1] = CMD_GET_SPEED;
-	uint8_t rlen = 4;
-//	request_mem(CMD_GET_SPEED, buf, rlen, idx);
-	I2C_write(sendBuf, 2, idx, Timeout);
-	I2C_read(buf, 4, idx, Timeout);
-	
-//  uint8_t request_code = CMD_GET_SPEED;
-//  uint8_t rlen = 4;
-//  request(&request_code, buf, rlen, idx);
-  speed = *(float*)buf;
+  int wlen = 2;
+  int rlen = sizeof(float);
+
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
+
+	writeBuf[0] = MeEncoders[idx]._slot;
+	writeBuf[1] = CMD_GET_SPEED;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
+  float speed = *(float*)readBuf;
   return speed;
 }
 
@@ -675,12 +592,8 @@ float getCurrentSpeed(int idx)
  */
 void sendCmd(int idx)
 {
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  for(int i=0;i<CmdBufLength;i++)
-//    Wire.write(MeEncoders[idx].cmdBuf[i]);
-//  Wire.endTransmission();
   I2C_write(MeEncoders[idx].cmdBuf, CmdBufLength, idx, Timeout);
-
+  HAL_Delay(2);
 }
 
 /**
@@ -699,22 +612,18 @@ void sendCmd(int idx)
  */
 float getRatio(int idx)
 {
-  uint8_t buf[8];
-  float ratio;
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_RATIO);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)4);
-//  for(int i=0;i<4;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
+  int wlen = 2;
+  int rlen = sizeof(float);
 
-  uint8_t request_code = CMD_GET_RATIO;
-  uint8_t rlen = 4;
-  request(&request_code, buf, rlen, idx);
-  ratio = *(float*)buf;
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
+
+  writeBuf[0] = MeEncoders[idx]._slot;
+  writeBuf[1] = CMD_GET_RATIO;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
+  float ratio = *(float*)readBuf;
   return ratio;
 }
 
@@ -756,23 +665,19 @@ void setRatio(float ratio, int idx)
  */
 int getPulse(int idx)
 {
-  uint8_t buf[8];
-  int pulse;
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_PULSE);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)2);
-//  for(int i=0;i<2;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
 
-  uint8_t request_code = CMD_GET_PULSE;
-  uint8_t rlen = 2;
-  request(&request_code, buf, rlen, idx);
+  int wlen = 2;
+  int rlen = sizeof(int);
 
-  pulse = *(int*)buf;
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
+
+  writeBuf[0] = MeEncoders[idx]._slot;
+  writeBuf[1] = CMD_GET_PULSE;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
+  int pulse = *(int*)readBuf;
   return pulse;
 }
 
@@ -870,24 +775,18 @@ void runSpeedAndTime(float speed, float time, float lock_state, int idx)
  */
 bool isTarPosReached(int idx)
 {
-  uint8_t buf[8];
-  bool lock_state;
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_LOCK_STATE);
-//  Wire.endTransmission(0);
-//
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)2);
-//  for(int i=0;i<2;i++)
-//  {
-//    buf[i] = Wire.read();
-//  }
+  int wlen = 2;
+  int rlen = sizeof(bool);
 
-  uint8_t request_code = CMD_GET_LOCK_STATE;
-  uint8_t rlen = 2;
-  request(&request_code, buf, rlen, idx);
+  uint8_t writeBuf[wlen];
+  uint8_t readBuf[rlen];
 
-  lock_state = *(bool*)buf;
+  writeBuf[0] = MeEncoders[idx]._slot;
+  writeBuf[1] = CMD_GET_LOCK_STATE;
+
+  request(writeBuf, wlen, readBuf, rlen, idx, Timeout);
+
+  bool lock_state = *(bool*)buf;
   return lock_state;
 }
 
@@ -906,39 +805,20 @@ bool isTarPosReached(int idx)
  */
 void getFirmwareVersion(uint8_t *buffer, int idx)
 {
-//  Wire.beginTransmission(MeEncoders[idx].address);
-//  Wire.write(MeEncoders[idx]._slot);
-//  Wire.write(CMD_GET_FIRWARE_VERSION);
-//  Wire.endTransmission(0);
-//  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)8);
-//  for(int i=0;i<8;i++)
-//  {
-//    buffer[i] = Wire.read();
-//  }
-  uint8_t request_code = CMD_GET_FIRWARE_VERSION;
-  uint8_t rlen = 8;
-  request(&request_code, buffer, rlen, idx);
+  int wlen = 2;
+  int rlen = 8;
+
+  uint8_t writeBuf[wlen];
+
+  writeBuf[0] = MeEncoders[idx]._slot;
+  writeBuf[1] = CMD_GET_FIRWARE_VERSION;
+
+  request(writeBuf, wlen, buffer, rlen, idx, Timeout);
 }
 
-
-void request_mem(uint8_t request_code, uint8_t *readData, uint16_t rlen, int idx) {
-	HAL_StatusTypeDef status = HAL_OK;
-	uint8_t wlen = 2;
-	uint8_t writeData[wlen];
-	writeData[0] = MeEncoders[idx]._slot;
-	writeData[1] = request_code;
-	
-	status = HAL_I2C_Mem_Read(&hi2c1, MeEncoders[idx].address << 1, (uint16_t)writeData, I2C_MEMADD_SIZE_16BIT, readData, rlen, Timeout);
-	if (status != HAL_OK) {
-    printf("[error] MeEncoderDriver HAL_I2C_Mem_Read(%d)\r\n", idx);
-  }
-}
-void request(uint8_t *request_code, uint8_t *readData, int rlen, int idx) {
-  I2C_write(&MeEncoders[idx]._slot, 1, idx, Timeout);
-  I2C_write(request_code, 1, idx, Timeout);
-  I2C_read(readData, rlen, idx, Timeout);
-	
-  
+void request(uint8_t *writeBuf, int wlen, uint8_t *readBuf, int rlen, int idx, uint32_t timeout) {
+  I2C_write(writeBuf, wlen, idx, timeout);
+  I2C_read(readBuf, rlen, idx, timeout);
 }
 
 void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout) {
@@ -948,7 +828,6 @@ void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout) {
     printf("[error] MeEncoderDriver I2C_Master_Transmit(%d)\r\n", idx);
   }
 	HAL_Delay(20);
-
 }
 
 void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout) {
