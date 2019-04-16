@@ -116,7 +116,7 @@ MeEncoder MeEncoders[NumOfEncoder];
 
 void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout);
 void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout);
-
+void request_mem(uint8_t request_code, uint8_t *readData, uint16_t rlen, int idx);
 /**
  * Alternate Constructor which can call your own function to map the Encoder Motor New to arduino port,
  * you can set any slot for the Encoder Motor New device.
@@ -517,9 +517,15 @@ void getSpeedPID(float * p,float * i,float * d, int idx)
 //  Wire.endTransmission(0);
 //  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)12);
 
-  uint8_t request_code = CMD_GET_SPEED_PID;
-  uint8_t rlen = 12;
-  request(&request_code, buf, rlen, idx);
+//  uint8_t request_code = CMD_GET_SPEED_PID;
+//  uint8_t rlen = 12;
+//  request(&request_code, buf, rlen, idx);
+	
+	uint8_t sendBuf[8];
+	sendBuf[0] = MeEncoders[idx]._slot;
+	sendBuf[1] = CMD_GET_SPEED_PID;
+	I2C_write(sendBuf, 2, idx, Timeout);
+	I2C_read(buf, 12, idx, Timeout);
 
 //  for(int i=0;i<4;i++)
 //  {
@@ -573,9 +579,15 @@ void getPosPID(float * p,float * i,float * d, int idx)
 //  Wire.endTransmission(0);
 //  Wire.requestFrom(MeEncoders[idx].address,(uint8_t)12);
 
-  uint8_t request_code = CMD_GET_POS_PID;
-  uint8_t rlen = 12;
-  request(&request_code, buf, rlen, idx);
+//  uint8_t request_code = CMD_GET_POS_PID;
+//  uint8_t rlen = 12;
+//  request(&request_code, buf, rlen, idx);
+//	
+	uint8_t sendBuf[8];
+	sendBuf[0] = MeEncoders[idx]._slot;
+	sendBuf[1] = CMD_GET_POS_PID;
+	I2C_write(sendBuf, 2, idx, Timeout);
+	I2C_read(buf, 12, idx, Timeout);
 
 //
 //  for(int i=0;i<4;i++)
@@ -629,9 +641,20 @@ float getCurrentSpeed(int idx)
 //  {
 //    buf[i] = Wire.read();
 //  }
-  uint8_t request_code = CMD_GET_SPEED;
-  uint8_t rlen = 4;
-  request(&request_code, buf, rlen, idx);
+	
+	
+	
+	uint8_t sendBuf[8];
+	sendBuf[0] = MeEncoders[idx]._slot;
+	sendBuf[1] = CMD_GET_SPEED;
+	uint8_t rlen = 4;
+//	request_mem(CMD_GET_SPEED, buf, rlen, idx);
+	I2C_write(sendBuf, 2, idx, Timeout);
+	I2C_read(buf, 4, idx, Timeout);
+	
+//  uint8_t request_code = CMD_GET_SPEED;
+//  uint8_t rlen = 4;
+//  request(&request_code, buf, rlen, idx);
   speed = *(float*)buf;
   return speed;
 }
@@ -898,10 +921,23 @@ void getFirmwareVersion(uint8_t *buffer, int idx)
 }
 
 
+void request_mem(uint8_t request_code, uint8_t *readData, uint16_t rlen, int idx) {
+	HAL_StatusTypeDef status = HAL_OK;
+	uint8_t wlen = 2;
+	uint8_t writeData[wlen];
+	writeData[0] = MeEncoders[idx]._slot;
+	writeData[1] = request_code;
+	
+	status = HAL_I2C_Mem_Read(&hi2c1, MeEncoders[idx].address << 1, (uint16_t)writeData, I2C_MEMADD_SIZE_16BIT, readData, rlen, Timeout);
+	if (status != HAL_OK) {
+    printf("[error] MeEncoderDriver HAL_I2C_Mem_Read(%d)\r\n", idx);
+  }
+}
 void request(uint8_t *request_code, uint8_t *readData, int rlen, int idx) {
   I2C_write(&MeEncoders[idx]._slot, 1, idx, Timeout);
   I2C_write(request_code, 1, idx, Timeout);
   I2C_read(readData, rlen, idx, Timeout);
+	
   
 }
 
@@ -911,15 +947,17 @@ void I2C_write(uint8_t *writeData, int wlen, int idx, uint32_t timeout) {
   if (status != HAL_OK) {
     printf("[error] MeEncoderDriver I2C_Master_Transmit(%d)\r\n", idx);
   }
+	HAL_Delay(20);
 
 }
 
 void I2C_read( uint8_t *readData, int rlen, int idx, uint32_t timeout) {
   HAL_StatusTypeDef status = HAL_OK;
-  status = HAL_I2C_Master_Receive(&hi2c1, ((MeEncoders[idx].address) << 1) | 1, readData, rlen, timeout);
+  status = HAL_I2C_Master_Receive(&hi2c1, ((MeEncoders[idx].address << 1) | 0x1), readData, rlen, timeout);
   if (status != HAL_OK) {
     printf("[error] MeEncoderDriver I2C_Master_Receive(%d)\r\n", idx);
   }
+	HAL_Delay(20);
 }
 
 void MeEncoderNew_Init() {

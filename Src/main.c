@@ -565,7 +565,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-float speed_run = 70.;
+float speed_run = 10.;
 
 void chassis_fwd() {
 	move(700, speed_run, 0, 0);
@@ -602,14 +602,14 @@ void chassis_right() {
 
 /* DC Motor test */
 void DCMotorTest(void) {
-	float sP = .05;
-	float sI = 0.01;
-	float sD = 0.1;
+	float sP = 0.05;
+	float sI = 0.0;
+	float sD = 0.05;
 	
-	float pP = 0.1;
-	float pI = 0.;
-	float pD = 0.;
-	
+	float pP = 0.0;
+	float pI = 0.0;
+	float pD = 0.0;
+//	
 	setSpeedPID(sP, sI, sD, 0);
 	setSpeedPID(sP, sI, sD, 1);
 	setSpeedPID(sP, sI, sD, 2);
@@ -635,14 +635,26 @@ void DCMotorTest(void) {
 //	setPosPID(.1, .1, .3, 2);
 //	setPosPID(.1, .1, .3, 3);
 
-//	while (1) {
-//		runSpeed(70, 1, 0);
-//		runSpeed(70, 1, 1);
-//		runSpeed(70, 1, 2);
-//		runSpeed(70, 1, 3);
-//	}
-	
 	while (1) {
+//		if (speed_run < 110.) {
+//			speed_run = speed_run + 5.0;
+//		}
+//		if (speed_run > 110.) {
+//			speed_run = 50.0;
+//		}
+		speed_run = 80.;
+		runSpeed(speed_run, 1, 0);
+		runSpeed(speed_run, 1, 1);
+		runSpeed(speed_run, 1, 2);
+		runSpeed(speed_run, 1, 3);
+		
+		printf("speed: set speed: %.2f -> %.2f ||| ",
+		speed_run, getCurrentSpeed(2));
+		HAL_Delay(100);
+	}
+//	
+	while (1) {
+		
 		chassis_fwd();
 		printf("fwd\r\n");
 		chassis_left();

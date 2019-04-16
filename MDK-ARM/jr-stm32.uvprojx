@@ -600,6 +600,9 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Drivers/BSP</GroupName>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
