@@ -52,13 +52,27 @@
 /* Interrupt pin for TOF sensors (shared) */
 #define VL53L1X_INT_Pin GPIO_PIN_4
 #define VL53L1X_INT_GPIO_Port GPIOA
+
 /* XSHUT pin for TOF sensors (individual) */
-#define TOF_0_XSHUT_Pin GPIO_PIN_8
-#define TOF_0_XSHUT_GPIO_Port GPIOA
-#define TOF_1_XSHUT_Pin GPIO_PIN_10
-#define TOF_1_XSHUT_GPIO_Port GPIOB
-#define TOF_2_XSHUT_Pin GPIO_PIN_4
-#define TOF_2_XSHUT_GPIO_Port GPIOB
+//#define TOF_0_XSHUT_Pin GPIO_PIN_8
+//#define TOF_0_XSHUT_GPIO_Port GPIOA
+//#define TOF_1_XSHUT_Pin GPIO_PIN_10
+//#define TOF_1_XSHUT_GPIO_Port GPIOB
+//#define TOF_2_XSHUT_Pin GPIO_PIN_4
+//#define TOF_2_XSHUT_GPIO_Port GPIOB
+//#define TOF_3_XSHUT_Pin GPIO_PIN_5
+//#define TOF_3_XSHUT_GPIO_Port GPIOB
+//#define TOF_4_XSHUT_Pin GPIO_PIN_3
+//#define TOF_4_XSHUT_GPIO_Port GPIOB
+//#define TOF_5_XSHUT_Pin GPIO_PIN_10
+//#define TOF_5_XSHUT_GPIO_Port GPIOA
+
+#define TOF_0_XSHUT_Pin GPIO_PIN_10
+#define TOF_0_XSHUT_GPIO_Port GPIOC
+#define TOF_1_XSHUT_Pin GPIO_PIN_12
+#define TOF_1_XSHUT_GPIO_Port GPIOC
+#define TOF_2_XSHUT_Pin GPIO_PIN_15
+#define TOF_2_XSHUT_GPIO_Port GPIOA
 #define TOF_3_XSHUT_Pin GPIO_PIN_5
 #define TOF_3_XSHUT_GPIO_Port GPIOB
 #define TOF_4_XSHUT_Pin GPIO_PIN_3
