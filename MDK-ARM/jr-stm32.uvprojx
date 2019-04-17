@@ -585,6 +585,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Drivers/Locomotion</GroupName>
+          <Files>
+            <File>
+              <FileName>MeEncoderNew.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\Locomotion\MeEncoderNew.c</FilePath>
+            </File>
+            <File>
+              <FileName>chassis_ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\chassis_ctrl.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
